@@ -16,16 +16,16 @@ jobs:
       - name: 🔧 Install Node.js & npm
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
 
       - name: 📦 Install Dependencies
         run: npm install
 
       - name: ⚡ Build Angular Project
-        run: npm run build -- --configuration=production
+        run: npm run build --configuration=production
 
       - name: 🚀 Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: dist/your-angular-app  # Anpassen an den Namen deines dist-Ordners
+          folder: dist/tubelist
