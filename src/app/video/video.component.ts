@@ -88,12 +88,32 @@ export class VideoComponent implements AfterViewInit{
     this.onYouTubeIframeAPIReady();
   }
 
-  onPlayerStateChange(event: any) {
+  onPlayerStateChange(event: {data: number, target: {videoTitle: string}} ) {
+
+    this.updateVideoTitleIfNecessary(event?.target?.videoTitle);
+
     if (event.data === YT.PlayerState.ENDED) {
       const endedVideo: Video | undefined = this.video();
       if(endedVideo) {
         this.videoService.fireVideoEnded(endedVideo);
       }
+    }
+  }
+
+  updateVideoTitleIfNecessary(title: string) {
+    if(!title) {
+      return;
+    }
+
+    const currentVideo = this.video();
+
+    if(!currentVideo) {
+      return;
+    }
+
+    if(currentVideo.title != title) {
+      currentVideo.title = title;
+      this.videoService.fireVideoTitleUpdated(currentVideo);
     }
   }
 

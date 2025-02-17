@@ -29,7 +29,7 @@
         *ngFor="let video of this.playlistService.playlist(); let i = index" 
         cdkDrag 
         (click)="selectVideo(video)" 
-        [class.selected]="video === appStateService.selectedVideo()">
+        [class.selected]="video?.id === appStateService.selectedVideo()?.id">
         {{ video.title || 'ID: '+video.id }}
       </mat-list-item>
       </mat-list>

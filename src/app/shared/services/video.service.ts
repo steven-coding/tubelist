@@ -10,6 +10,7 @@ export class VideoService {
     public onStop = new EventEmitter<void>();
 
     public onVideoEnded = new EventEmitter<Video>();
+    public onVideoTitleUpdated = new EventEmitter<Video>();
 
     public play() {
         this.onPlay.emit();
@@ -25,5 +26,9 @@ export class VideoService {
 
     public fireVideoEnded(video: Video) {
         this.onVideoEnded.emit(video);
+    }
+
+    public fireVideoTitleUpdated(video: Video) {
+        this.onVideoTitleUpdated.emit(video);
     }
 }

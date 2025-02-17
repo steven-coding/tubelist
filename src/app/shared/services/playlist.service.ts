@@ -25,4 +25,23 @@ export class PlaylistService {
     setPlaylist(video: Video[]): void {
         this.playlist.set([... video]);
     }
+
+    updateVideoTitle(updatedVideo: Video) {
+        const currentList = this.playlist();
+        
+        const index = currentList.findIndex(video => video.id === updatedVideo.id);
+        
+        if (index !== -1) {
+
+            const videoToUpdate = {
+                ...currentList[index],
+                title: updatedVideo.title
+            };
+            
+            const updatedList = [...currentList];
+            updatedList[index] = videoToUpdate;
+            
+            this.playlist.set(updatedList);
+        }
+    }
 }

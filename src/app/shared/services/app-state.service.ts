@@ -20,6 +20,13 @@ export class AppStateService {
             ).subscribe((video) => {
                 this.handleVideoPlayEnded(video);
             });
+
+        this.videoService.onVideoTitleUpdated
+            .pipe(
+                takeUntilDestroyed()
+            ).subscribe((video) => {
+                this.playlistService.updateVideoTitle(video);
+            });
     }
 
     public selectVideo(video: Video) {
