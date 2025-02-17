@@ -1,1 +1,42 @@
-<h1>Hello, {{ title }}</h1>
+<mat-toolbar class="toolbar" color="primary">
+  <span class="title">{{title}}</span>
+  <mat-form-field class="url" subscriptSizing="dynamic">
+    <mat-label>YouTube-URL</mat-label>
+    <input matInput [(ngModel)] ="youTubeUrl">
+  </mat-form-field>
+  <button mat-icon-button color="accent" (click)="addYouTubeUrlToPlaylist()">
+    <mat-icon>add</mat-icon>
+  </button>
+</mat-toolbar>
+
+<mat-sidenav-container class="container">
+  <mat-sidenav mode="side" opened class="playlist">
+    <h3 class="playlist-title">
+      <span>Playlist</span>
+      <button mat-icon-button color="accent" (click)="play()">
+        <mat-icon>play_arrow</mat-icon>
+      </button>
+      <button mat-icon-button color="accent" (click)="pause()">
+        <mat-icon><mat-icon>pause</mat-icon></mat-icon>
+      </button>
+      <button mat-icon-button color="accent" (click)="stop()">
+        <mat-icon><mat-icon>stop</mat-icon></mat-icon>
+      </button>
+    </h3>
+    <div cdkDropList (cdkDropListDropped)="drop($event)">
+      <mat-list>
+        <mat-list-item 
+        *ngFor="let video of this.playlistService.playlist(); let i = index" 
+        cdkDrag 
+        (click)="selectVideo(video)" 
+        [class.selected]="video === appStateService.selectedVideo()">
+        {{ video.title || 'ID: '+video.id }}
+      </mat-list-item>
+      </mat-list>
+    </div>
+  </mat-sidenav>
+  
+  <mat-sidenav-content class="content">
+    <app-video class="video-player"></app-video>
+  </mat-sidenav-content>
+</mat-sidenav-container>
