@@ -2,13 +2,13 @@ import { effect, inject, Injectable } from "@angular/core";
 import { PlaylistService } from "./playlist.service";
 
 
-const updateUrlParam = (key: string, value: string): void => {
+export const updateUrlParam = (key: string, value: string): void => {
     const url = new URL(window.location.href);
     url.searchParams.set(key, value); // Setzt oder ersetzt den Parameter
     window.history.replaceState({}, '', url.toString());
 }
 
-const getUrlParam = (key: string): string | null => {
+export const getUrlParam = (key: string): string | null => {
     const url = new URL(window.location.href);
     return url.searchParams.get(key);
 }

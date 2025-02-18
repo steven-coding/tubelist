@@ -12,6 +12,7 @@ export class AppStateService {
     private videoService = inject(VideoService);
 
     public readonly selectedVideo = signal<Video | undefined>(undefined);
+    public readonly selectedVideoIndex = signal<number | undefined>(undefined);
 
     constructor() {
         this.videoService.onVideoEnded
@@ -39,12 +40,27 @@ export class AppStateService {
         );
     }
 
-    public selectNextVideo() {
+    public selectPreviousVideo() {
         const index = this.playlistService.playlist()
             .findIndex((vid) => vid.id === this.selectedVideo()?.id);
 
         this.selectVideo(
-            this.playlistService.playlist()[index+1]
+            this.playlistService.playlist()[index > 0 ? index - 1 : 0]
+        );
+    }
+
+    public selectNextVideo() {
+        const index = this.playlistService.playlist()
+            .findIndex((vid) => vid.id === this.selectedVideo()?.id);
+
+        const nextVideoIndex = index + 1;
+        
+        if(nextVideoIndex >= this.playlistService.playlist().length) {
+            return;
+        }
+
+        this.selectVideo(
+            this.playlistService.playlist()[nextVideoIndex]
         );
     }
 

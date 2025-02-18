@@ -14,10 +14,15 @@
 }
 
 .playlist {
-    width: 300px;
+    width: 350px;
     padding: 16px;
     background: #f4f4f4;
 }
+
+.playlist-controls {
+    justify-self: center;
+}
+
 .content {
     display: flex;
     justify-content: center;
@@ -40,10 +45,6 @@
     align-items: center;
 }
 
-.selected {
-    background-color: red;
-}
-
 .video-player {
     position: absolute;
     left: 0;
@@ -53,7 +54,11 @@
     overflow: hidden;
 }
 
-.playlist-title {
-    display: flex;
-    align-items: center;
+.playlist-name {
+    width: 100%;
+}
+
+.selected {
+    color: var(--mat-sys-on-primary) !important;
+    background-color: var(--mat-sys-primary);
 }

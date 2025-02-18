@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafePipe } from '../shared/pipes/safe.pipe';
 import { AppStateService } from '../shared/services/app-state.service';
 import { VideoService } from '../shared/services/video.service';
+import { getVideoIdFromYoutubeUrl } from '../shared/get-video-id-from-youtube-url';
 
 
 declare var YT: any;
@@ -88,9 +89,9 @@ export class VideoComponent implements AfterViewInit{
     this.onYouTubeIframeAPIReady();
   }
 
-  onPlayerStateChange(event: {data: number, target: {videoTitle: string}} ) {
+  onPlayerStateChange(event: {data: number, target: {videoTitle: string, getVideoUrl: () => string}} ) {
 
-    this.updateVideoTitleIfNecessary(event?.target?.videoTitle);
+    this.updateVideoTitleIfNecessary(event?.target?.getVideoUrl(), event?.target?.videoTitle);
 
     if (event.data === YT.PlayerState.ENDED) {
       const endedVideo: Video | undefined = this.video();
@@ -100,21 +101,23 @@ export class VideoComponent implements AfterViewInit{
     }
   }
 
-  updateVideoTitleIfNecessary(title: string) {
-    if(!title) {
+  updateVideoTitleIfNecessary(videoUrl: string, title: string) {
+    if(!videoUrl || !title) {
       return;
     }
 
-    const currentVideo = this.video();
+    const videoId = getVideoIdFromYoutubeUrl(videoUrl);
 
-    if(!currentVideo) {
+    if(!videoId) {
       return;
     }
 
-    if(currentVideo.title != title) {
-      currentVideo.title = title;
-      this.videoService.fireVideoTitleUpdated(currentVideo);
-    }
+    const video: Video = {
+      id: videoId,
+      title
+    };
+
+    this.videoService.fireVideoTitleUpdated(video);
   }
 
   sendMessageToIframe(command: string) {

@@ -16,9 +16,8 @@ import { AppStateService } from './shared/services/app-state.service';
 import { VideoComponent } from './video/video.component';
 import { VideoService } from './shared/services/video.service';
 import { FormsModule } from '@angular/forms';
-import { PlaylistToUrlService } from './shared/services/playlist-to-url.service';
-
-declare var YT: any;
+import { getUrlParam, PlaylistToUrlService, updateUrlParam } from './shared/services/playlist-to-url.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-root',
@@ -33,6 +32,7 @@ declare var YT: any;
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
+    MatTooltipModule,
     DragDropModule,
     VideoComponent
   ],
@@ -48,9 +48,22 @@ export class AppComponent {
 
   title = 'tubelist';
   youTubeUrl = undefined;
+  _playlistName = 'Playlist'
+
+  public get playlistName(): string {
+    return this._playlistName;
+  }
+
+  public set playlistName(v: string) {
+    this._playlistName = v;
+
+    updateUrlParam('name', this.playlistName);
+    window.document.title = `${this.title} | ${this.playlistName}`
+  }
 
   constructor() {
     this.appStateService.selectFirstVideo();
+    this.initializePlaylistNameFromUrl();
   }
 
   drop(event: CdkDragDrop<Video[]>) {
@@ -77,16 +90,30 @@ export class AppComponent {
     this.videoService.stop();
   }
 
+  backward() {
+    this.appStateService.selectPreviousVideo();
+  }
+
+  forward() {
+    this.appStateService.selectNextVideo()
+  }
+
   addYouTubeUrlToPlaylist() {
-    const urlToCheck = this.youTubeUrl || '';
 
-    const regex = /watch\?v=([^&]+)/;
-
-    const match = urlToCheck.match(regex);
-
-    if (match?.[1]) {
-      const videoId = match[1];
-      this.playlistService.addById(videoId);
+    this.playlistService.parseUrlAndAddToPlaylist(this.youTubeUrl || '');
+    
+    if(this.playlistService.playlist().length == 1) {
+      this.appStateService.selectNextVideo();
     }
+  }
+
+  initializePlaylistNameFromUrl() {
+    const playlistNameFromUrl = getUrlParam('name');
+    
+    if(!playlistNameFromUrl) {
+      return;
+    }
+
+    this.playlistName = playlistNameFromUrl;
   }
 }

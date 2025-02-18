@@ -1,5 +1,6 @@
 import { moveItemInArray } from "@angular/cdk/drag-drop";
 import { Injectable, signal } from "@angular/core";
+import { getVideoIdFromYoutubeUrl } from "../get-video-id-from-youtube-url";
 
 @Injectable({
     providedIn: 'root'
@@ -22,6 +23,10 @@ export class PlaylistService {
         this.playlist.set(currentList)
     }
 
+    containsVideoWithId(videoId: string): boolean {
+        return !!this.playlist().find(v => v.id === videoId);
+    }
+
     setPlaylist(video: Video[]): void {
         this.playlist.set([... video]);
     }
@@ -30,6 +35,10 @@ export class PlaylistService {
         const currentList = this.playlist();
         
         const index = currentList.findIndex(video => video.id === updatedVideo.id);
+
+        if(this.playlist()[index].title === updatedVideo.title) {
+            return;
+        }
         
         if (index !== -1) {
 
@@ -43,5 +52,15 @@ export class PlaylistService {
             
             this.playlist.set(updatedList);
         }
+    }
+
+    parseUrlAndAddToPlaylist(url: string) {
+        const videoId = getVideoIdFromYoutubeUrl(url || '');
+
+        if(!videoId || this.containsVideoWithId(videoId)) {
+            return;
+        }
+
+        this.addById(videoId);
     }
 }
