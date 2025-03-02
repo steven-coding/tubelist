@@ -1,6 +1,6 @@
 export const getVideoIdFromYoutubeUrl = (url: string): string | null => {
     const urlToCheck = url || '';
-    const regex = /watch\?v=([^&]+)/;
+    const regex = /watch.*?[?&]v=([^&]+)/;
     const match = urlToCheck.match(regex);
 
     if (!match?.[1]) {

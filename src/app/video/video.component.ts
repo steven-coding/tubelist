@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, ElementRef, inject, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafePipe } from '../shared/pipes/safe.pipe';
 import { AppStateService } from '../shared/services/app-state.service';
@@ -16,7 +16,7 @@ declare var YT: any;
   templateUrl: './video.component.html',
   styleUrl: './video.component.scss'
 })
-export class VideoComponent implements AfterViewInit{
+export class VideoComponent {
   @ViewChild('youtubePlayer', { static: true }) 
   youtubePlayer!: ElementRef<HTMLIFrameElement>;
 
@@ -27,13 +27,7 @@ export class VideoComponent implements AfterViewInit{
     () => this.appStateService.selectedVideo()
   );
 
-  url = computed(() => {
-    const videoToPlay = this.video();
-    const baseUrl = 'https://www.youtube.com/embed/'
-    const urlParameters = 'autoplay=1&enablejsapi=1';
-
-    return `${baseUrl}${videoToPlay?.id}?${urlParameters}`;
-  })
+  url = signal<string>('');
 
   baseUrl = 'https://www.youtube.com/embed/';
 
@@ -55,6 +49,16 @@ export class VideoComponent implements AfterViewInit{
     .pipe(
       takeUntilDestroyed()
     ).subscribe(this.stop.bind(this));
+
+    effect(() => {
+      const videoToPlay = this.video();
+
+      if(!videoToPlay) {
+        return;
+      }
+
+      this.playVideo(videoToPlay);
+    })
   }
 
   play() {
@@ -69,15 +73,8 @@ export class VideoComponent implements AfterViewInit{
     this.sendMessageToIframe('stopVideo');
   }
 
-  ngAfterViewInit() {
-    this.loadYouTubeAPI();
-  }
+  createNewPlayer() {
 
-  loadYouTubeAPI() {
-      this.onYouTubeIframeAPIReady();
-  }
-
-  onYouTubeIframeAPIReady() {
     this.player = new YT.Player('youtube-player', {
       events: {
         'onStateChange': (event: any) => this.onPlayerStateChange(event)
@@ -85,13 +82,14 @@ export class VideoComponent implements AfterViewInit{
     });
   }
 
+
   public handleIFrameLoad() {
-    this.onYouTubeIframeAPIReady();
+    this.createNewPlayer();
   }
 
-  onPlayerStateChange(event: {data: number, target: {videoTitle: string, getVideoUrl: () => string}} ) {
+  onPlayerStateChange(event: {data: number, target: {videoTitle: string, playerInfo: { videoUrl: string}}} ) {
 
-    this.updateVideoTitleIfNecessary(event?.target?.getVideoUrl(), event?.target?.videoTitle);
+    this.updateVideoTitleIfNecessary(event?.target?.playerInfo?.videoUrl, event?.target?.videoTitle);
 
     if (event.data === YT.PlayerState.ENDED) {
       const endedVideo: Video | undefined = this.video();
@@ -126,6 +124,21 @@ export class VideoComponent implements AfterViewInit{
         JSON.stringify({ event: 'command', func: command, args: [] }),
         '*'
       );
+    }
+  }
+
+  
+  private playVideo(v: Video) {
+    if(this.player) {
+      this.player.loadVideoById(v.id);
+    } else {
+
+      const baseUrl = 'https://www.youtube.com/embed/'
+      const urlParameters = 'autoplay=1&enablejsapi=1';
+  
+      let iFrameUrl = `${baseUrl}${v?.id}?${urlParameters}`;
+
+      this.url.set(iFrameUrl);
     }
   }
 }
