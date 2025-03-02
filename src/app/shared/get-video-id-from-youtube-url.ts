@@ -3,11 +3,21 @@ export const getVideoIdFromYoutubeUrl = (url: string): string | null => {
     const regex = /watch.*?[?&]v=([^&]+)/;
     const match = urlToCheck.match(regex);
 
-    if (!match?.[1]) {
-        return null;
+    if (match?.[1]) {
+        return match[1];
     }
 
-    const videoId = match[1];
+    return getVideoIdFromYoutubeShortUrl(url);
+}
 
-    return videoId;
+export const getVideoIdFromYoutubeShortUrl = (url: string): string | null => {
+
+  const regex = /youtu\.be\/([^?]+)/;
+  const match = url.match(regex);
+
+  if (!match?.[1]) {
+    return null;
+  }
+
+  return match[1];
 }

@@ -84,7 +84,9 @@ export class VideoComponent {
 
 
   public handleIFrameLoad() {
-    this.createNewPlayer();
+    if(this.video()) {
+      this.createNewPlayer();
+    }
   }
 
   onPlayerStateChange(event: {data: number, target: {videoTitle: string, playerInfo: { videoUrl: string}}} ) {
